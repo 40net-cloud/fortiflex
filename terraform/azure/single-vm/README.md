@@ -83,8 +83,7 @@ terraform destroy
 ## Support
 
 Fortinet-provided scripts in this and other GitHub projects do not fall under the regular Fortinet technical support scope and are not supported by FortiCare Support Services.
-For direct issues, please refer to the [Issues](https://github.com/fortinet/fortigate-terraform-deploy/issues) tab of this GitHub project.
-For other questions related to this project, contact [github@fortinet.com](mailto:github@fortinet.com).
+For direct issues, please refer to the [Issues](https://github.com/40net-cloud/fortiflex/issues) tab of this GitHub project.
 
 ## License
 
