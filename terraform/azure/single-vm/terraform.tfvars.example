@@ -1,0 +1,9 @@
+// Change for your own environment
+PREFIX="<fill in a prefix used for for each resource >"
+LOCATION="<fill in a deployment region>"
+USERNAME="<fill in a username (not admin, root or other reserved names)>"
+PASSWORD="<fill in a password (minimum 12 chars, letters, numbers and token)>"
+FORTIFLEX_USERNAME="<fill in the fortiflex api username>"
+FORTIFLEX_PASSWORD="<fill in the fortiflex api password>"
+FORTIFLEX_CONFIG_ID="<fill in the fortiflex configuration reference id>"
+FORTIFLEX_SERIALNUMBER="<fill in the fortiflex preconfigured serialnumber>"
