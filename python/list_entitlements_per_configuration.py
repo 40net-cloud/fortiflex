@@ -53,7 +53,8 @@ def list_entitlements_per_configuration_id(token,configuration_id):
         jData = json.loads(results.content)
         jObjects = jData['entitlements']
         for x in range(len(jObjects)):
-            print ('"{}","{}"'.format(jObjects[x]['serialNumber'],jObjects[x]['token']))
+            print (', '.join('"{}"'.format(v) for k,v in jObjects[x].items()))
+#            print ('"{}","{}"'.format(jObjects[x]['serialNumber'],jObjects[x]['token']))
     else:
         print('--> unable to fetch entitlements: {}'.format(results))
     return()
