@@ -19,4 +19,6 @@ fgt_ipaddress = ${fgt_ipaddress}
 fgt_private_ip_address_ext = ${fgt_private_ip_address_ext}
 fgt_private_ip_address_int = ${fgt_private_ip_address_int}
 
+fgt_fortiflex_serial = ${fgt_fortiflex_serial}
+
 ##############################################################################################################

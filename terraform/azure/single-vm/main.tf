@@ -10,28 +10,28 @@
 ##############################################################################################################
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.PREFIX}-VNET"
+  name                = "${var.PREFIX}-vnet"
   address_space       = [var.vnet]
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
 }
 
 resource "azurerm_subnet" "subnet1" {
-  name                 = "${var.PREFIX}-SUBNET-FGT-EXTERNAL"
+  name                 = "${var.PREFIX}-subnet-fgt-external"
   resource_group_name  = azurerm_resource_group.resourcegroup.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.subnet["1"]]
 }
 
 resource "azurerm_subnet" "subnet2" {
-  name                 = "${var.PREFIX}-SUBNET-FGT-INTERNAL"
+  name                 = "${var.PREFIX}-subnet-fgt-internal"
   resource_group_name  = azurerm_resource_group.resourcegroup.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.subnet["2"]]
 }
 
 resource "azurerm_subnet" "subnet3" {
-  name                 = "${var.PREFIX}-SUBNET-PROTECTED-A"
+  name                 = "${var.PREFIX}-subnet-protected-a"
   resource_group_name  = azurerm_resource_group.resourcegroup.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.subnet["3"]]
@@ -47,7 +47,7 @@ resource "azurerm_subnet_route_table_association" "subnet3rt" {
 }
 
 resource "azurerm_route_table" "protectedaroute" {
-  name                = "${var.PREFIX}-RT-PROTECTED-A"
+  name                = "${var.PREFIX}-rt-protected-a"
   location            = var.LOCATION
   resource_group_name = azurerm_resource_group.resourcegroup.name
 
@@ -71,7 +71,7 @@ resource "azurerm_route_table" "protectedaroute" {
 }
 
 resource "azurerm_network_security_group" "fgtnsg" {
-  name                = "${var.PREFIX}-FGT-NSG"
+  name                = "${var.PREFIX}-fgt-nsg"
   location            = var.LOCATION
   resource_group_name = azurerm_resource_group.resourcegroup.name
 }
@@ -105,7 +105,7 @@ resource "azurerm_network_security_rule" "fgtnsgallowallin" {
 }
 
 resource "azurerm_public_ip" "fgtpip" {
-  name                = "${var.PREFIX}-FGT-PIP"
+  name                = "${var.PREFIX}-fgt-pip"
   location            = var.LOCATION
   resource_group_name = azurerm_resource_group.resourcegroup.name
   allocation_method   = "Static"
@@ -114,7 +114,7 @@ resource "azurerm_public_ip" "fgtpip" {
 }
 
 resource "azurerm_network_interface" "fgtifcext" {
-  name                          = "${var.PREFIX}-FGT-Nic1-EXT"
+  name                          = "${var.PREFIX}-fgt-nic1-ext"
   location                      = azurerm_resource_group.resourcegroup.location
   resource_group_name           = azurerm_resource_group.resourcegroup.name
   enable_ip_forwarding          = true
@@ -135,7 +135,7 @@ resource "azurerm_network_interface_security_group_association" "fgtifcextnsg" {
 }
 
 resource "azurerm_network_interface" "fgtifcint" {
-  name                 = "${var.PREFIX}-FGT-Nic2-INT"
+  name                 = "${var.PREFIX}-fgt-nic2-int"
   location             = azurerm_resource_group.resourcegroup.location
   resource_group_name  = azurerm_resource_group.resourcegroup.name
   enable_ip_forwarding = true
@@ -154,7 +154,7 @@ resource "azurerm_network_interface_security_group_association" "fgtifcintnsg" {
 }
 
 resource "azurerm_linux_virtual_machine" "fgtvm" {
-  name                         = "${var.PREFIX}-FGT-VM"
+  name                         = "${var.PREFIX}-fgt-vm"
   location                     = azurerm_resource_group.resourcegroup.location
   resource_group_name          = azurerm_resource_group.resourcegroup.name
   network_interface_ids        = [azurerm_network_interface.fgtifcext.id, azurerm_network_interface.fgtifcint.id]
@@ -178,7 +178,7 @@ resource "azurerm_linux_virtual_machine" "fgtvm" {
   }
 
   os_disk {
-    name                 = "${var.PREFIX}-FGT-A-OSDISK"
+    name                 = "${var.PREFIX}-fgt-a-osdisk"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -187,9 +187,10 @@ resource "azurerm_linux_virtual_machine" "fgtvm" {
   admin_password                  = var.PASSWORD
   disable_password_authentication = false
   custom_data = base64encode(templatefile("${path.module}/customdata.tftpl", {
-    fgt_vm_name         = "${var.PREFIX}-FGT"
+    fgt_vm_name         = "${var.PREFIX}-fgt"
     fgt_license_file    = var.FGT_BYOL_LICENSE_FILE
-    fgt_license_flexvm  = data.fortiflexvm_vms_list.example.vms[index(data.fortiflexvm_vms_list.example.vms.*.serial_number,"FGVMELTM21000267")].token
+#    fgt_license_flexvm  = fortiflexvm_entitlements_vm.fortiflex_vm.token
+    fgt_license_flexvm  = fortiflexvm_entitlements_vm_token.fortiflex_vm.token
     fgt_username        = var.USERNAME
     fgt_ssh_public_key  = var.FGT_SSH_PUBLIC_KEY_FILE
     fgt_external_ipaddr = var.fgt_ipaddress["1"]
@@ -213,7 +214,7 @@ resource "azurerm_linux_virtual_machine" "fgtvm" {
 }
 
 resource "azurerm_managed_disk" "fgtvm-datadisk" {
-  name                 = "${var.PREFIX}-FGT-VM-DATADISK"
+  name                 = "${var.PREFIX}-fgt-vm-datadisk"
   location             = azurerm_resource_group.resourcegroup.location
   resource_group_name  = azurerm_resource_group.resourcegroup.name
   storage_account_type = "Standard_LRS"
@@ -238,24 +239,29 @@ output "fgt_public_ip_address" {
   value = data.azurerm_public_ip.fgtpip.ip_address
 }
 
-resource "fortiflexvm_vms_update" "example"{
+#resource "fortiflexvm_entitlements_vm" "fortiflex_vm"{
+#  config_id = var.FORTIFLEX_CONFIG_ID
+#  description = "Terraform managed" # Optional.
+#  folder_path = "My Assets/2023"
+#  # status = "ACTIVE" # "ACTIVE" or "STOPPED". Optional. It has many restrictions. Not recommended to set it manually.
+#}
+#output "debug_fortiflex"{
+#    value = fortiflexvm_entitlements_vm.fortiflex_vm
+#}
+#output "debug_fortiflex_token"{
+#    value = fortiflexvm_entitlements_vm.fortiflex_vm.token
+#}
+
+resource "fortiflexvm_entitlements_vm_token" "fortiflex_vm"{
+  config_id = var.FORTIFLEX_CONFIG_ID
   serial_number = var.FORTIFLEX_SERIALNUMBER
-  regenerate_token = true
-  config_id = var.FORTIFLEX_CONFIG_ID
-  status = "ACTIVE"
+  regenerate_token = true # If set as false, the provider would only provide the token and not regenerate the token.
 }
-
-output "debug_flexvm" {
-  value =  fortiflexvm_vms_update.example
+output "debug_fortiflex"{
+#    value = fortiflexvm_entitlements_vm.fortiflex_vm
+    value = fortiflexvm_entitlements_vm_token.fortiflex_vm
 }
-
-data "fortiflexvm_vms_list" "example" {
-  config_id = var.FORTIFLEX_CONFIG_ID
-  depends_on = [
-    fortiflexvm_vms_update.example
-  ]
-}
-
-output "flexvm_token"{
-    value = data.fortiflexvm_vms_list.example.vms[index(data.fortiflexvm_vms_list.example.vms.*.serial_number,var.FORTIFLEX_SERIALNUMBER)].token
+output "debug_fortiflex_token"{
+#    value = fortiflexvm_entitlements_vm.fortiflex_vm.token
+    value = fortiflexvm_entitlements_vm_token.fortiflex_vm.token
 }
