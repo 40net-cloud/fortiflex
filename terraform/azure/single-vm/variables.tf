@@ -29,8 +29,8 @@ variable "FORTIFLEX_PASSWORD" {
 variable "FORTIFLEX_CONFIG_ID" {
 }
 
-variable "FORTIFLEX_SERIALNUMBER" {
-}
+#variable "FORTIFLEX_SERIALNUMBER" {
+#}
 
 ##############################################################################################################
 # FortiGate license type
